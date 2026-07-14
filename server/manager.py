@@ -28,6 +28,7 @@ class RunManager:
         self.lock = threading.RLock()
         self.process = None
         self.current_run = None
+        self.current_config = None
         self.log_handle = None
 
     def status(self):
@@ -62,7 +63,14 @@ class RunManager:
                 start_new_session=True,
             )
             self.current_run = run_id
+            self.current_config = config
             return run_id
+
+    def config(self):
+        with self.lock:
+            if self.current_config is not None:
+                return self.current_config
+            return load_default_config()
 
     def stop(self):
         with self.lock:
@@ -106,7 +114,7 @@ def load_default_config():
 
 
 def page(message=""):
-    config = load_default_config()
+    config = manager.config()
     status = manager.status()
     runs = manager.runs()
     state = "ĐANG CHẠY" if status["running"] else "ĐÃ DỪNG"
