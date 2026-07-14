@@ -19,6 +19,10 @@ COPY server/requirements-server.txt /tmp/requirements-server.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-server.txt
 
 COPY server /app/server
+COPY yolov5 /app/yolov5
+
+RUN test -f /app/yolov5/models/yolo.py \
+    && python -c "from models.yolo import Model; print('YOLOv5 import OK')"
 
 RUN mkdir -p /app/server/output /app/server/runs /data/runs \
     && useradd --create-home --uid 10001 flower \
