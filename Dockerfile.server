@@ -20,11 +20,11 @@ RUN pip install --no-cache-dir -r /tmp/requirements-server.txt
 COPY server /app/server
 COPY yolov5 /app/yolov5
 
-RUN mkdir -p /app/server/output \
+RUN mkdir -p /app/server/output /app/server/runs \
     && useradd --create-home --uid 10001 flower \
-    && chown -R flower:flower /app/server/output
+    && chown -R flower:flower /app/server/output /app/server/runs
 
 USER flower
-EXPOSE 8080
+EXPOSE 8080 5000
 
-CMD ["python", "server/main.py"]
+CMD ["python", "server/manager.py"]

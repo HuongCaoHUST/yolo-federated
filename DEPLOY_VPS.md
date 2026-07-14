@@ -12,6 +12,21 @@ docker compose up -d
 docker compose logs -f fl-server
 ```
 
+Trước lần chạy đầu tiên, tạo file môi trường và đổi mật khẩu dashboard:
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Mở `http://IP_VPS:5000`, sau đó đăng nhập bằng `FL_ADMIN_USER` và
+`FL_ADMIN_PASSWORD` trong `.env`. Trên giao diện bạn có thể:
+
+- đặt tên test, số round và số client tối thiểu;
+- sửa cấu hình epochs/batch/workers cho từng client;
+- bắt đầu experiment mới (lượt đang chạy sẽ được dừng trước);
+- dừng server, xem log trực tiếp và lịch sử kết quả.
+
 Mặc định server công khai cổng TCP `8080`. Nếu muốn dùng cổng khác ở phía VPS:
 
 ```bash
@@ -28,7 +43,7 @@ Sửa `server/config_server.json` trước khi khởi động. `min_clients_conn
 docker compose restart fl-server
 ```
 
-Kết quả được giữ bền vững trong Docker volume `fl-output`:
+Mỗi lần bấm bắt đầu tạo một thư mục experiment riêng trong Docker volume `fl-output`, gồm:
 
 - `rapport_federated_learning.csv`
 - `model_federated_final.pt` sau round cuối
@@ -36,7 +51,7 @@ Kết quả được giữ bền vững trong Docker volume `fl-output`:
 Sao chép kết quả từ container ra thư mục hiện tại:
 
 ```bash
-docker compose cp fl-server:/app/server/output ./server-output
+docker compose cp fl-server:/app/server/runs ./server-runs
 ```
 
 ## 3. Kết nối client
@@ -67,3 +82,5 @@ Không chạy `docker compose down -v` nếu chưa sao lưu kết quả. `docker
 ## Bảo mật mạng
 
 Flower 1.4 trong mã hiện tại dùng gRPC không mã hóa. Không nên để cổng `8080` mở cho toàn Internet. Cách triển khai phù hợp nhất là cho VPS và các client vào cùng mạng riêng WireGuard/Tailscale, rồi firewall chỉ cho phép IP của mạng đó. Nếu buộc phải dùng IP công khai, giới hạn source IP của từng client trong firewall/security group; TLS cần được bổ sung đồng thời ở cả server và client.
+
+Dashboard có HTTP Basic Auth nhưng chưa có HTTPS. Chỉ mở cổng `5000` qua VPN/Tailscale hoặc đặt dashboard sau reverse proxy HTTPS. Tuyệt đối đổi mật khẩu mặc định `change-me`.
