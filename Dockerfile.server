@@ -3,8 +3,8 @@ FROM python:3.10-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/yolov5 \
-    MPLCONFIGDIR=/tmp/matplotlib \
-    XDG_CACHE_HOME=/tmp/.cache
+    MPLCONFIGDIR=/tmp/yolo-fl-cache/matplotlib \
+    XDG_CACHE_HOME=/tmp/yolo-fl-cache
 
 WORKDIR /app
 
@@ -18,15 +18,18 @@ RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu 
 COPY server/requirements-server.txt /tmp/requirements-server.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-server.txt
 
+# torch 2.2.x was built against the NumPy 1.x ABI.
+RUN pip install --no-cache-dir --force-reinstall "numpy==1.26.4"
+
 COPY server /app/server
 COPY yolov5 /app/yolov5
 
 RUN test -f /app/yolov5/models/yolo.py \
     && python -c "from models.yolo import Model; print('YOLOv5 import OK')"
 
-RUN mkdir -p /app/server/output /app/server/runs /data/runs \
+RUN mkdir -p /app/server/output /app/server/runs /data/runs /tmp/yolo-fl-cache/matplotlib \
     && useradd --create-home --uid 10001 flower \
-    && chown -R flower:flower /app/server/output /app/server/runs /data/runs
+    && chown -R flower:flower /app/server/output /app/server/runs /data/runs /tmp/yolo-fl-cache
 
 USER flower
 EXPOSE 8080 5000
