@@ -19,6 +19,24 @@ cp .env.example .env
 nano .env
 ```
 
+Toàn bộ source code được mount chỉ đọc từ máy VPS vào `/app` trong container. Mặc định
+Compose dùng thư mục chứa `compose.yaml`. Nếu dự án nằm ở nơi khác, đặt đường dẫn tuyệt đối trong `.env`:
+
+```env
+PROJECT_PATH=/opt/yolo-federated
+```
+
+Đường dẫn đó phải chứa cả `server/` và `yolov5/`. Kiểm tra trước khi chạy:
+
+```bash
+test -f "${PROJECT_PATH:-.}/server/main.py" && \
+test -f "${PROJECT_PATH:-.}/yolov5/models/yolo.py" && echo "Source code OK"
+```
+
+Sau khi sửa Python, dashboard hoặc cấu hình trên VPS, chỉ cần chạy
+`docker compose restart fl-server`; không cần rebuild. Chỉ rebuild khi thay đổi
+`Dockerfile.server` hoặc `requirements-server.txt`.
+
 Mở `http://IP_VPS:5000`, sau đó đăng nhập bằng `FL_ADMIN_USER` và
 `FL_ADMIN_PASSWORD` trong `.env`. Trên giao diện bạn có thể:
 

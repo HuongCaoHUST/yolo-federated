@@ -12,8 +12,9 @@ import json
  
 # Configuration des chemins
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, 'yolov5'))
+YOLO_DIR = os.environ.get("YOLO_DIR", os.path.join(BASE_DIR, "yolov5"))
+sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, YOLO_DIR)
 
 CACHE_DIR = os.environ.get("FL_CACHE_DIR", "/tmp/yolo-fl-cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -51,6 +52,8 @@ try:
 except ImportError as e:
     print("\n--- ERREUR D'IMPORTATION DETECTEE ---")
     traceback.print_exc()
+    print(f"YOLO_DIR attendu : {YOLO_DIR}")
+    print(f"models/yolo.py existe : {os.path.isfile(os.path.join(YOLO_DIR, 'models', 'yolo.py'))}")
     print("-------------------------------------------\n")
     sys.exit(1)
  

@@ -2,6 +2,7 @@ FROM python:3.10-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/yolov5 \
     MPLCONFIGDIR=/tmp/matplotlib \
     XDG_CACHE_HOME=/tmp/.cache
 
@@ -18,7 +19,6 @@ COPY server/requirements-server.txt /tmp/requirements-server.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-server.txt
 
 COPY server /app/server
-COPY yolov5 /app/yolov5
 
 RUN mkdir -p /app/server/output /app/server/runs \
     && useradd --create-home --uid 10001 flower \

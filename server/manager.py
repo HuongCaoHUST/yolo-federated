@@ -120,14 +120,15 @@ def page(message=""):
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>YOLO Federated Learning</title>
 <style>
-:root{{--bg:#0b1020;--card:#151c31;--line:#29334e;--text:#eef2ff;--muted:#9ba7c4;--accent:#6d8cff;--danger:#ef5b67;--ok:#39c98a}}
-*{{box-sizing:border-box}} body{{margin:0;background:linear-gradient(135deg,#090d19,#111936);color:var(--text);font:15px system-ui,sans-serif}}
+:root{{--bg:#f3f6fb;--card:#ffffff;--line:#d9e1ee;--text:#172033;--muted:#66738c;--accent:#356ae6;--danger:#dc4453;--ok:#16865e}}
+*{{box-sizing:border-box}} body{{margin:0;background:linear-gradient(135deg,#f8faff,#edf3fb);color:var(--text);font:15px system-ui,sans-serif}}
 .wrap{{max-width:1080px;margin:auto;padding:32px 18px}} h1{{margin:0 0 6px;font-size:28px}} .sub{{color:var(--muted);margin-bottom:24px}}
-.grid{{display:grid;grid-template-columns:1fr 1fr;gap:18px}} .card{{background:rgba(21,28,49,.94);border:1px solid var(--line);border-radius:14px;padding:20px}}
-.wide{{grid-column:1/-1}} label{{display:block;color:var(--muted);margin:13px 0 6px}} input,textarea{{width:100%;background:#0c1222;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}}
+.grid{{display:grid;grid-template-columns:1fr 1fr;gap:18px}} .card{{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(35,55,90,.07)}}
+.wide{{grid-column:1/-1}} label{{display:block;color:var(--muted);margin:13px 0 6px}} input,textarea{{width:100%;background:#fbfcff;color:var(--text);border:1px solid #cbd5e5;border-radius:8px;padding:10px}}
+input:focus,textarea:focus{{outline:3px solid rgba(53,106,230,.14);border-color:var(--accent)}}
 textarea{{min-height:230px;font:13px ui-monospace,monospace}} button{{border:0;border-radius:8px;padding:11px 16px;color:white;background:var(--accent);cursor:pointer;font-weight:650;margin:12px 8px 0 0}}
-button.danger{{background:var(--danger)}} .badge{{display:inline-block;padding:6px 10px;border-radius:20px;font-weight:700}} .running{{background:#123e32;color:#66e4ae}} .stopped{{background:#49242a;color:#ff929b}}
-pre{{background:#080d19;border:1px solid var(--line);border-radius:8px;padding:14px;max-height:420px;overflow:auto;white-space:pre-wrap;color:#c7d2ee}}
+button.danger{{background:var(--danger)}} .badge{{display:inline-block;padding:6px 10px;border-radius:20px;font-weight:700}} .running{{background:#dcf7eb;color:#08734c}} .stopped{{background:#ffe8eb;color:#b52c3a}}
+pre{{background:#f7f9fd;border:1px solid var(--line);border-radius:8px;padding:14px;max-height:420px;overflow:auto;white-space:pre-wrap;color:#26344f}}
 table{{width:100%;border-collapse:collapse}} td,th{{padding:9px;border-bottom:1px solid var(--line);text-align:left}} .msg{{background:#27375e;padding:10px;border-radius:8px;margin-bottom:14px}}
 @media(max-width:760px){{.grid{{grid-template-columns:1fr}}}}
 </style></head><body><main class="wrap">
