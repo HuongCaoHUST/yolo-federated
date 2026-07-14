@@ -20,9 +20,9 @@ RUN pip install --no-cache-dir -r /tmp/requirements-server.txt
 
 COPY server /app/server
 
-RUN mkdir -p /app/server/output /app/server/runs \
+RUN mkdir -p /app/server/output /app/server/runs /data/runs \
     && useradd --create-home --uid 10001 flower \
-    && chown -R flower:flower /app/server/output /app/server/runs
+    && chown -R flower:flower /app/server/output /app/server/runs /data/runs
 
 USER flower
 EXPOSE 8080 5000
