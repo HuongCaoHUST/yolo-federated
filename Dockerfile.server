@@ -1,0 +1,30 @@
+FROM python:3.10-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    MPLCONFIGDIR=/tmp/matplotlib \
+    XDG_CACHE_HOME=/tmp/.cache
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y libglib2.0-0 libgl1 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
+        torch==2.2.2 torchvision==0.17.2
+
+COPY server/requirements-server.txt /tmp/requirements-server.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-server.txt
+
+COPY server /app/server
+COPY yolov5 /app/yolov5
+
+RUN mkdir -p /app/server/output \
+    && useradd --create-home --uid 10001 flower \
+    && chown -R flower:flower /app/server/output
+
+USER flower
+EXPOSE 8080
+
+CMD ["python", "server/main.py"]

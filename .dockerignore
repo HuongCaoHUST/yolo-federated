@@ -1,0 +1,15 @@
+.git
+.agents
+.codex
+__MACOSX
+**/__pycache__
+**/*.py[cod]
+**/.cache
+**/.git
+**/runs
+datasets
+coco8
+*.zip
+*.pt
+server/output
+server/rapport_federated_learning.csv

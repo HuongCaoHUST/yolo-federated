@@ -1,0 +1,33 @@
+{
+  "num_rounds": 10,
+  "min_clients_connected": 1,
+  "clients": {
+
+    "js1": {
+      "epochs": 4,
+      "batch_size": 4,
+      "workers": 2
+    },
+
+    "comvis": {
+      "epochs": 4,
+      "batch_size": 4,
+      "workers": 2
+    },
+
+      "hugo": {
+      "epochs": 2,
+      "batch_size": 4,
+      "workers": 2
+    },
+
+    "default": {
+      "epochs": 4,
+      "batch_size": 4,
+      "workers": 2
+    }
+
+  }
+}
+ 
+ 

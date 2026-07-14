@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# ==============================================================================
+# COMPLETE DEPLOYMENT SCRIPT FOR NVIDIA JETSON NANO (FL CLIENT NODES)
+# Target Versions: Python 3.6.9, PyTorch 1.10, Torchvision 0.11, YOLOv5 v6.2
+# ==============================================================================
+
+# --- STEP 1: MEMORY OPTIMIZATION (8GB SWAP) & POWER CONFIGURATION ---
+echo "--- Step 1: Configuring SWAP and Power Mode ---"
+# Create a persistent 8GB physical swap file on the SD card to assist the RAM
+sudo fallocate -l 6G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# Add a permanent entry to the system file descriptor so it persists across reboots
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+
+# --- STEP 2: SYSTEM PREPARATION & COMPILATION PREREQUISITES ---
+echo "--- Step 2: Installing Required System Packages ---"
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install -y python3-pip python3-venv python3-dev
+sudo apt-get install -y libopenblas-base libopenmpi-dev libjpeg-dev zlib1g-dev libavcodec-dev libavformat-dev libswscale-dev git wget
+
+
+# --- STEP 3: CREATING THE PYTHON 3.6.9 VIRTUAL ENVIRONMENT ---
+echo "--- Step 3: Creating 'fl_env' Virtual Environment ---"
+python3 -m venv fl_env
+source fl_env/bin/activate
+
+# Imperative upgrade of package management tools within the virtual environment
+pip install --upgrade pip setuptools wheel
+
+
+# --- STEP 4: DOWNLOADING & INSTALLING PYTORCH 1.10 (CUDA 10.2 OPTIMIZED) ---
+echo "--- Step 4: Installing Official NVIDIA PyTorch v1.10.0 ---"
+# Download the official wheel compiled specifically for ARM64 architecture and CUDA 10.2
+wget https://nvidia.box.com/shared/static/5saun7067w3g6g1964f7t987p2da8st6.whl -O torch-1.10.0-cp36-cp36m-linux_aarch64.whl
+pip install torch-1.10.0-cp36-cp36m-linux_aarch64.whl
+
+
+# --- STEP 5: COMPILING TORCHVISION 0.11.0 FROM SOURCE ---
+echo "--- Step 5: Cloning and Compiling Torchvision v0.11.0 ---"
+git clone --branch v0.11.0 https://github.com/pytorch/vision torchvision
+cd torchvision
+export BUILD_VERSION=0.11.0
+python setup.py install --user
+cd ..
+
+
+# --- STEP 6: YOLOv5 CONFIGURATION (COMPATIBLE v6.2 BRANCH) ---
+echo "--- Step 6: Configuring YOLOv5 (v6.2) ---"
+git clone https://github.com/ultralytics/yolov5.git
+cd yolov5
+# Force checkout to v6.2 branch to ensure strict Python 3.6.9 compatibility
+git checkout v6.2
+
+# Modify the requirements file on the fly to prevent pip from overwriting our optimized CUDA PyTorch/Torchvision installations
+sed -i 's/^torch/# torch/' requirements.txt
+sed -i 's/^torchvision/# torchvision/' requirements.txt
+
+# Install the remaining image processing dependencies adapted for Python 3.6.9
+pip install -r requirements.txt
+pip install pyyaml tqdm matplotlib
+
+
+# --- STEP 7: FEDERATED LEARNING FRAMEWORK INSTALLATION ---
+echo "--- Step 7: Installing Flower ---"
+pip install flwr==1.4.0
+
+
+# --- FINAL ENVIRONMENT DIAGNOSTIC ---
+echo "--- Step 8: Final Environment Diagnostic ---"
+python3 -c "import torch; print('-> PyTorch loaded successfully'); print('-> CUDA Hardware Acceleration Active:', torch.cuda.is_available())"
+
+echo "=============================================================================="
+echo " CONFIGURATION COMPLETED SUCCESSFULLY!"
+echo " To launch the federated learning client, use the following command:"
+echo " python3 client_jetson.py --data /home/comvis/kitti/data.yaml --server 192.168.0.10X:8080 --device-type jetson --device-id comvis"
+echo "=============================================================================="
