@@ -11,6 +11,7 @@ services:
       FL_SERVER_ADDRESS: 0.0.0.0:8080
       FL_CONFIG_PATH: /app/server/config_server.json
       FL_RUNS_DIR: /app/server/runs
+      FL_CACHE_DIR: /tmp/yolo-fl-cache
       FL_UI_ADDRESS: 0.0.0.0:5000
       FL_ADMIN_USER: ${FL_ADMIN_USER:-admin}
       FL_ADMIN_PASSWORD: ${FL_ADMIN_PASSWORD:-change-me}

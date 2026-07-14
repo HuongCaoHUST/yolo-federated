@@ -15,7 +15,7 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, 'yolov5'))
 
-CACHE_DIR = os.path.join(os.path.dirname(__file__), ".cache")
+CACHE_DIR = os.environ.get("FL_CACHE_DIR", "/tmp/yolo-fl-cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
 os.environ.setdefault("MPLCONFIGDIR", os.path.join(CACHE_DIR, "matplotlib"))
 os.environ.setdefault("XDG_CACHE_HOME", CACHE_DIR)
