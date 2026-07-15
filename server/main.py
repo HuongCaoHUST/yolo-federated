@@ -28,6 +28,8 @@ CACHE_DIR = os.environ.get("FL_CACHE_DIR", "/tmp/yolo-fl-cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
 os.environ.setdefault("MPLCONFIGDIR", os.path.join(CACHE_DIR, "matplotlib"))
 os.environ.setdefault("XDG_CACHE_HOME", CACHE_DIR)
+os.environ.setdefault("YOLOV5_CONFIG_DIR", os.path.join(CACHE_DIR, "Ultralytics"))
+os.makedirs(os.environ["YOLOV5_CONFIG_DIR"], exist_ok=True)
  
 # On définit le chemin absolu du fichier une bonne fois pour toutes
 CONFIG_PATH = os.environ.get(

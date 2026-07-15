@@ -4,7 +4,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/yolov5 \
     MPLCONFIGDIR=/tmp/yolo-fl-cache/matplotlib \
-    XDG_CACHE_HOME=/tmp/yolo-fl-cache
+    XDG_CACHE_HOME=/tmp/yolo-fl-cache \
+    YOLOV5_CONFIG_DIR=/tmp/yolo-fl-cache/Ultralytics
 
 WORKDIR /app
 
@@ -32,7 +33,8 @@ RUN test -f /app/yolov5/models/yolo.py \
 RUN pip install --no-cache-dir --force-reinstall "numpy==1.26.4" \
     && python -c "import numpy, torch; assert numpy.__version__ == '1.26.4', numpy.__version__; print('Final NumPy:', numpy.__version__, '| Torch:', torch.__version__)"
 
-RUN mkdir -p /app/server/output /app/server/runs /data/runs /tmp/yolo-fl-cache/matplotlib \
+RUN mkdir -p /app/server/output /app/server/runs /data/runs \
+        /tmp/yolo-fl-cache/matplotlib /tmp/yolo-fl-cache/Ultralytics \
     && useradd --create-home --uid 10001 flower \
     && chown -R flower:flower /app/server/output /app/server/runs /data/runs /tmp/yolo-fl-cache
 
