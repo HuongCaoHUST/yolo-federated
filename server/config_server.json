@@ -1,6 +1,13 @@
 {
   "num_rounds": 10,
   "min_clients_connected": 1,
+  "global_validation": {
+    "enabled": true,
+    "data": "/app/coco8.yaml",
+    "batch_size": 8,
+    "imgsz": 320,
+    "workers": 2
+  },
   "clients": {
 
     "js1": {

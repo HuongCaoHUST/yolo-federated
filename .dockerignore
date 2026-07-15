@@ -8,7 +8,6 @@ __MACOSX
 **/.git
 **/runs
 datasets
-coco8
 *.zip
 *.pt
 server/output

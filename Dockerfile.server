@@ -18,14 +18,19 @@ RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu 
 COPY server/requirements-server.txt /tmp/requirements-server.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-server.txt
 
-# torch 2.2.x was built against the NumPy 1.x ABI.
-RUN pip install --no-cache-dir --force-reinstall "numpy==1.26.4"
-
 COPY server /app/server
 COPY yolov5 /app/yolov5
+COPY coco8.yaml /app/coco8.yaml
+COPY coco8 /app/coco8
 
 RUN test -f /app/yolov5/models/yolo.py \
+    && test -f /app/coco8.yaml \
     && python -c "from models.yolo import Model; print('YOLOv5 import OK')"
+
+# Keep this after every YOLO/Ultralytics import because legacy YOLOv5 may
+# auto-install packages while importing and alter the resolved NumPy version.
+RUN pip install --no-cache-dir --force-reinstall "numpy==1.26.4" \
+    && python -c "import numpy, torch; assert numpy.__version__ == '1.26.4', numpy.__version__; print('Final NumPy:', numpy.__version__, '| Torch:', torch.__version__)"
 
 RUN mkdir -p /app/server/output /app/server/runs /data/runs /tmp/yolo-fl-cache/matplotlib \
     && useradd --create-home --uid 10001 flower \

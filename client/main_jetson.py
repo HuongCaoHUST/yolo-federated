@@ -7,6 +7,7 @@ from collections import OrderedDict
 import psutil
 import time
 import subprocess
+import yaml
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 YOLO_DIR = os.path.join(BASE_DIR, "..", "yolov5") if os.path.exists(os.path.join(BASE_DIR, "..", "yolov5")) else "/home/js1/yolov5"
@@ -34,11 +35,21 @@ class YOLOv5Client(fl.client.NumPyClient):
         self.device = device
         self.device_type = device_type
         self.device_id = device_id
+        with open(self.data_path, encoding="utf-8") as handle:
+            data_config = yaml.safe_load(handle)
+        names = data_config.get("names")
+        self.num_classes = int(data_config.get("nc", len(names) if names is not None else 0))
+        if self.num_classes < 1:
+            raise ValueError(f"Không xác định được số lớp từ {self.data_path}")
+        self.class_names = names
+        print(f"[DATASET] Đọc {self.num_classes} lớp từ {self.data_path}")
         self.model = self.load_base_architecture()
 
     def load_base_architecture(self):
         """Crée la structure d'entraînement native v6.1 (270 couches, nc=8) avec les poids valides."""
-        model = Model(os.path.join(YOLO_DIR, "models/yolov5s.yaml"), ch=3, nc=8).to(self.device)
+        model = Model(os.path.join(YOLO_DIR, "models/yolov5s.yaml"), ch=3, nc=self.num_classes).to(self.device)
+        if self.class_names is not None:
+            model.names = self.class_names
         weights_path = os.path.join(YOLO_DIR, "yolov5s.pt")
         if os.path.exists(weights_path):
             ckpt = torch.load(weights_path, map_location=self.device, weights_only=False)
@@ -49,13 +60,26 @@ class YOLOv5Client(fl.client.NumPyClient):
 
     def get_parameters(self, config=None):
         # On exclut les buffers d'ancres non-entraînables
-        return [val.cpu().numpy() for name, val in self.model.state_dict().items() if "anchor" not in name]
+        parameters = []
+        for name, value in self.model.state_dict().items():
+            if "anchor" in name:
+                continue
+            value = value.detach().cpu()
+            # YOLO checkpoints can be FP16; aggregate floating weights in FP32.
+            if value.is_floating_point():
+                value = value.float()
+            parameters.append(value.numpy())
+        return parameters
 
     def set_parameters(self, parameters):
         # On filtre les clés de la même manière
         keys = [k for k in self.model.state_dict().keys() if "anchor" not in k]
         params_dict = zip(keys, parameters)
-        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+        current_state = self.model.state_dict()
+        state_dict = OrderedDict({
+            key: torch.as_tensor(value, dtype=current_state[key].dtype, device=self.device)
+            for key, value in params_dict
+        })
         # strict=False permet d'ignorer les buffers statiques comme anchor_grid
         self.model.load_state_dict(state_dict, strict=False)
 

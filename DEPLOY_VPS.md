@@ -93,3 +93,53 @@ Không chạy `docker compose down -v` nếu chưa sao lưu kết quả. `docker
 Flower 1.4 trong mã hiện tại dùng gRPC không mã hóa. Không nên để cổng `8080` mở cho toàn Internet. Cách triển khai phù hợp nhất là cho VPS và các client vào cùng mạng riêng WireGuard/Tailscale, rồi firewall chỉ cho phép IP của mạng đó. Nếu buộc phải dùng IP công khai, giới hạn source IP của từng client trong firewall/security group; TLS cần được bổ sung đồng thời ở cả server và client.
 
 Dashboard có HTTP Basic Auth nhưng chưa có HTTPS. Chỉ mở cổng `5000` qua VPN/Tailscale hoặc đặt dashboard sau reverse proxy HTTPS. Tuyệt đối đổi mật khẩu mặc định `change-me`.
+
+## Global validation sau mỗi round
+
+Chuẩn bị một tập validation dùng chung trên VPS. Dữ liệu này chỉ ở server và không
+tham gia huấn luyện client:
+
+```text
+global_val/
+├── data.yaml
+├── images/val/
+└── labels/val/
+```
+
+`global_val/data.yaml` phải khai báo đúng 8 lớp và dùng đường dẫn trong container:
+
+```yaml
+path: /data/global_val
+train: images/val
+val: images/val
+names:
+  0: class_0
+  1: class_1
+  2: class_2
+  3: class_3
+  4: class_4
+  5: class_5
+  6: class_6
+  7: class_7
+```
+
+Đặt vị trí dataset trong `.env` nếu không nằm cạnh `compose.yaml`:
+
+```env
+FL_GLOBAL_VAL_DIR=/duong/dan/tuyet/doi/global_val
+```
+
+Trên dashboard, bật **Validation global model sau mỗi round** rồi bắt đầu experiment.
+Sau mỗi FedAvg, server chạy validation và lưu `global_metrics.json`,
+`global_metrics.csv`, trạng thái loading cùng biểu đồ P, R, mAP50, mAP50-95,
+box loss, objectness loss, classification loss và total loss.
+
+Để dùng COCO8 được đóng sẵn trong image, đặt đường dẫn validation trên dashboard là:
+
+```text
+/app/coco8.yaml
+```
+
+Số lớp và tên lớp không bị hard-code: client đọc từ YAML huấn luyện, server đọc từ
+YAML validation. Với `coco8.yaml`, cả hai tự dựng YOLOv5 với 80 lớp. Tất cả client
+trong cùng experiment bắt buộc dùng YAML có cùng số lớp và thứ tự `names`.
